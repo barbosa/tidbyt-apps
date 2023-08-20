@@ -4,6 +4,7 @@ load("http.star", "http")
 load("render.star", "render")
 load("time.star", "time")
 load("humanize.star", "humanize")
+load("schema.star", "schema")
 
 CIRCLECI_LOGO_WHITE = base64.decode("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")
 CIRCLECI_LOGO_GREEN = base64.decode("iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAABEdJREFUWEfNl0toXVUUhr//pOlDQx/gC6laxBdEhWJBjc4VRZ1o0bmxWEMFsWoLzd471CiKk0LQgk50ljqw2oFTRRTbqiAGpW2cSQdqhIq2TdK7ZJ2cHc69Odc2xTRuCLnssx//+te/1l5LdBlmpkjsSUqzviRYWC00YNj9wO3AtcBlQEtoyrCfC4ojLVqfJaUTvsfPOMCBYqu2nut2j5o+jNt4T94ULGwUeh54EtjY7aDafAv43LCxpPShz++3/b3btG2mae8CAMHCiprVUWgXsLK0CDsn5BfIsLa98qm5saJ20dGCYmhYw18HC0UkmjS/rlzWdkhGutf2XjfDzEGhzdVhjr4HKC6AATPM3eJAe+cu0e6g8Fp2Sx3EPIBs+YiN3NGi9QWwFpiuDml01QWAcf046MKw95LS050gyoOzz4OFG4HvhS4H3OrSgoaRrfT/EvJzurHjrvGz3I3vRMVn6xqTK9UpcfpPcvIH4JZ/udxp9b+6nzM+v8jV7q5qYqw0SGgoKIxldytTHy2OAdsr2kvRdQynM198CvgJ+BVYBWwCbqrWZ3YcSH04QAfm329LSsdcmCXSERvZ3KL1bWXdAior9fuBk4btFToUFX/Lp/tBwJ1ugNBgNV8HnJdmt/r+R9wVJYBo8QDwOLBgU77cRRSJg1nBfmk//eX+eqKJFgeAg8AVNeB1JtyFLsq7k9JhecjNMnu8otI/zkXO3CjFUyWVIZ9w321gQ2uCCV/TchD+u59+m2DCM+d0sLBJ6DtgfQOrJQs5KlwDLwi91UXtnny+SUpbqtRcAktKGej8NmfE5/fZvlU7tONssvSwYYcaWMgM/LKOdTcrWnwRGAV+r6vbXCuwUuihqPili9Wt8UtGbfTKaaZfAbYAp4TeDwruxnJkYQcLnwo90ODaDOLe0qJgYe0a1rSFzmlOe3xPR8W/K5GVlgcL1wsdAa5ql7i9mZRecmG5SzydJ0tPGDbeAKDUmtAz581wOU/k5BEtfgQ8ZtjpiqGWYYVQT0ExMKzhr2op/YZZZo9VSSiHYdaWJ7nREoBf0k0DrvoMwpkSmnSFl29Tu1hdWCkpxQwgWOgTcoFf0yHGkgEX9/8DQDfrK32U6l5SFwQL61ezus0NZzijPvrO7tTOvxpEeBi4ugP4G1Hx5UWL0MPQsNeBqRyGubgwzB+PB7uFoWF3CXkYfnAxYVhQ3LP8iaghFdddsfSpeNkfIwdwvue4lskmhV7tpffQbu32WiCn3sU+x59ExUfL5/hiChLD/hT6EfCawIuXRRUkPfTcukd7jpcFybKXZM7hpSpKDXs7KW1vK0o7n9ClKsuBd6PiYH53cmXV2Jh4OwZ8/F81JobtSkqe7MqHr7Ex6WSirHwsBd9clWtdW7NaW+bb2lozw57z2u+CWrMMorM5BXYIPXVJmtMMorM991pviqn7OttzIW9G/vCSXejoYtvzfwB/7z6lvPpg8gAAAABJRU5ErkJggg==")
@@ -24,8 +25,9 @@ def main(config):
 
 
 def fetch_latest_pipeline(config):
-    api_token = config.get("api_token")
-    project_slug = config.get("project_slug")
+    api_token = config.str("api_token")
+    project_slug = "{}/{}/{}".format(config.str("vcs"), config.str("org"), config.str("repo"))
+    print(project_slug)
 
     response = http.get(CIRCLECI_PIPELINES_API_URL.format(project_slug), params={
         "circle-token": api_token,
@@ -73,7 +75,7 @@ def logo_for_status(status):
 
 
 def render_widget(config, latest_pipeline, latest_workflow):
-    project_slug = config.get("project_slug").split("/")[-1]
+    repo_name = config.str("repo")
     status = latest_workflow.get("status")
 
     author = latest_pipeline["trigger"]["actor"]["login"]
@@ -94,8 +96,7 @@ def render_widget(config, latest_pipeline, latest_workflow):
                         children = [
                             render.Image(src=logo_for_status(status), width=8, height=8),
                             render.Box(width=2, height=8),
-                            render.Text(project_slug)
-
+                            render.Text(repo_name)
                         ]
                     ),
                     render.Row(
@@ -116,4 +117,41 @@ def render_widget(config, latest_pipeline, latest_workflow):
                 ]
             )
         )
+    )
+
+
+def get_schema():
+    return schema.Schema(
+        version = "1",
+        fields = [
+            schema.Dropdown(
+                id = "vcs",
+                name = "VCS",
+                desc = "Version Control System",
+                icon = "codeBranch",
+                default = "gh",
+                options = [
+                    schema.Option(
+                        display = "GitHub",
+                        value = "gh"
+                    ),
+                    schema.Option(
+                        display = "Bitbucket",
+                        value = "bb" #TODO check if this is true
+                    )
+                ],
+            ),
+            schema.Text(
+                id = "org",
+                name = "Org",
+                desc = "Organization that contains repo",
+                icon = "building"
+            ),
+            schema.Text(
+                id = "repo",
+                name = "Repo",
+                desc = "Repository you want to watch",
+                icon = "book"
+            )
+        ]
     )
