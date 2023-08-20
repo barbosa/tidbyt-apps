@@ -32,8 +32,7 @@ def main(config):
     # alice for examples has 2 workflows: developer-productivity and development
     latest_pipeline = fetch_latest_pipeline(config)
     latest_workflow = fetch_latest_workflow(config, pipeline_id=latest_pipeline.get("id"))
-    # return render_basic(config, latest_workflow)
-    return render_detailed(config, latest_pipeline, latest_workflow)
+    return render_widget(config, latest_pipeline, latest_workflow)
 
 
 def fetch_latest_pipeline(config):
@@ -51,7 +50,6 @@ def fetch_latest_pipeline(config):
 
     pipelines = response.json()
     latest_pipeline = pipelines.get("items")[0]
-    print("[CIRCLE] Pipeline", latest_pipeline)
 
     return latest_pipeline
 
@@ -67,8 +65,7 @@ def fetch_latest_workflow(config, pipeline_id):
 
     workflows = response.json()
     latest_workflow = workflows.get("items")[0]
-    print("[CIRCLE] Workflow", latest_workflow)
-    print("[CIRCLE] Workflow Status", latest_workflow.get("status"))
+    print("Workflow Status:", latest_workflow.get("status"))
 
     return latest_workflow
 
@@ -83,52 +80,48 @@ def logo_for_status(status):
     return CIRCLECI_LOGO
 
 
-def render_basic(config, latest_workflow):
+def render_widget(config, latest_pipeline, latest_workflow):
     project_slug = config.get("project_slug").split("/")[-1]
     status = latest_workflow.get("status")
 
-    return render.Root(
-        child = render.Box(
-            child = render.Row(
-                expanded=True,
-                main_align="space_evenly",
-                cross_align="center",
-                children = [
-                    render.Image(src=logo_for_status(status), width=16, height=16),
-                    render.Text(project_slug)
-                ]
-            )
-        )
-    )
-
-
-def render_detailed(config, latest_pipeline, latest_workflow):
-    project_slug = config.get("project_slug").split("/")[-1]
-    status = latest_workflow.get("status")
     author = latest_pipeline["trigger"]["actor"]["login"]
-    #TODO avatar = latest_pipeline["trigger"]["actor"]["avatar_url"]
-    created_at = time.parse_time(latest_workflow["created_at"])
+    avatar_url = latest_pipeline["trigger"]["actor"]["avatar_url"]
+    avatar = http.get(avatar_url).body()
+
     stopped_at = time.parse_time(latest_workflow["stopped_at"])
+    when = humanize.time(stopped_at)
 
     return render.Root(
-        child = render.Column(
-            children = [
-                render.Row(
-                    children = [
-                        render.Image(src=logo_for_status(status), width=8, height=8),
-                        render.Text(project_slug)
-                    ]
-                ),
-                render.Marquee(
-                    width = 64,
-                    child = render.Column(
+        child = render.Padding(
+            pad = 2,
+            child = render.Column(
+                expanded = True,
+                main_align = "space_between",
+                children = [
+                    render.Row(
                         children = [
-                            render.Text(author),
-                            render.Text(humanize.relative_time(created_at, stopped_at)),
-                            render.Text(humanize.time(stopped_at))
+                            render.Image(src=logo_for_status(status), width=8, height=8),
+                            render.Box(width=2, height=8),
+                            render.Text(project_slug)
+
+                        ]
+                    ),
+                    render.Row(
+                        children = [
+                            render.Image(src=avatar, width=16, height=16),
+                            render.Box(width=2, height=16),
+                            render.Marquee(
+                                width = 48,
+                                child = render.Column(
+                                    children = [
+                                        render.Text(author),
+                                        render.Text(when)
+                                    ]
+                                )
+                            )
                         ]
                     )
-                )
-            ]
+                ]
+            )
         )
     )
