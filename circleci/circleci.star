@@ -16,11 +16,16 @@ CIRCLECI_WORKFLOWS_API_URL = "https://circleci.com/api/v2/pipeline/{}/workflow"
 
 
 def main(config):
+
+    #TODO 
+    
+    latest_pipeline = fetch_latest_pipeline(config)
+
     #FIXME
     # OK to get latest pipeline but need to get all workflows.
     # alice for examples has 2 workflows: developer-productivity and development
-    latest_pipeline = fetch_latest_pipeline(config)
     latest_workflow = fetch_latest_workflow(config, pipeline_id=latest_pipeline.get("id"))
+
     return render_widget(config, latest_pipeline, latest_workflow)
 
 
@@ -34,7 +39,7 @@ def fetch_latest_pipeline(config):
         "branch": "master" #FIXME get from either config or make another http call to project and get its default_branch
     })
 
-    #TODO better handle error
+    #FIXME render_error
     if response.status_code != 200:
         fail("Can't fetch pipelines from CircleCI", response.status_code)
 
@@ -51,7 +56,7 @@ def fetch_latest_workflow(config, pipeline_id):
         "circle-token": api_token
     })
 
-    #TODO better handle error
+    #FIXME render_error
     if response.status_code != 200:
         fail("Can't fetch workflows from CircleCI", response.status_code)
 
@@ -80,6 +85,8 @@ def render_widget(config, latest_pipeline, latest_workflow):
 
     author = latest_pipeline["trigger"]["actor"]["login"]
     avatar_url = latest_pipeline["trigger"]["actor"]["avatar_url"]
+
+    #FIXME display default avatar if avatar_url is None
     avatar = http.get(avatar_url).body()
 
     stopped_at = time.parse_time(latest_workflow["stopped_at"])
