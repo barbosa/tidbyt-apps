@@ -131,6 +131,12 @@ def get_schema():
     return schema.Schema(
         version = "1",
         fields = [
+            schema.Text(
+                id = "api_token",
+                name = "API Token",
+                desc = "Your CircleCI Personal Token",
+                icon = "key"
+            ),
             schema.Dropdown(
                 id = "vcs",
                 name = "VCS",
