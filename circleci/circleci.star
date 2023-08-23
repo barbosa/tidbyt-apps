@@ -15,6 +15,11 @@ CIRCLECI_PIPELINES_API_URL = "https://circleci.com/api/v2/project/{}/pipeline"
 CIRCLECI_WORKFLOWS_API_URL = "https://circleci.com/api/v2/pipeline/{}/workflow"
 
 
+"""
+Currently supporting GitHub OAuth and Bitbucket projects only.
+GitHub App and GitLab project support may be added later in the future.
+https://circleci.com/docs/api-developers-guide/#gitlab-saas-support-projects
+"""
 def main(config):
 
     #TODO 
@@ -150,7 +155,7 @@ def get_schema():
                     ),
                     schema.Option(
                         display = "Bitbucket",
-                        value = "bb" #TODO check if this is true
+                        value = "bb"
                     )
                 ],
             ),
