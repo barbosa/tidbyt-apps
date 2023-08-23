@@ -1,3 +1,10 @@
+"""
+Applet: CircleCI
+Summary: CircleCI Build Statuses
+Description: Status of latest execution of pipeline in CircleCI.
+Author: barbosa
+"""
+
 load("encoding/base64.star", "base64")
 load("http.star", "http")
 load("render.star", "render")
