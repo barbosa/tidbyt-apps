@@ -173,6 +173,15 @@ def render_fail(message):
     )
 
 
+#TODO TOTHINKABOUT
+# maybe we could use a schema.Typeahead and fetch all the possible
+# options for a field given the selection of the previous one
+# ex:
+# select GH, show all the orgs
+# select org, show all the repos
+# select the repo, show all the branches
+# (extra) select the branch, show all the existent workflows
+# https://tidbyt.dev/docs/reference/schema#typeahead
 def get_schema():
     return schema.Schema(
         version = "1",
