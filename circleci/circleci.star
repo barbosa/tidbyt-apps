@@ -21,16 +21,16 @@ GitHub App and GitLab project support may be added later in the future.
 https://circleci.com/docs/api-developers-guide/#gitlab-saas-support-projects
 """
 def main(config):
-    if config.str("api_token") == "":
+    if config.get("api_token") == None:
         return render_fail("Please inform API token")
 
-    if config.str("vcs") == "":
+    if config.get("vcs") == None:
         return render_fail("Please inform vcs type")
 
-    if config.str("org") == "":
+    if config.get("org") == None:
         return render_fail("Please inform org name")
 
-    if config.str("repo") == "":
+    if config.get("repo") == None:
         return render_fail("Please inform repo name")
 
     latest_pipeline = fetch_latest_pipeline(config)
@@ -50,17 +50,23 @@ def main(config):
 def fetch_latest_pipeline(config):
     api_token = config.str("api_token")
     project_slug = "{}/{}/{}".format(config.str("vcs"), config.str("org"), config.str("repo"))
-    print(project_slug)
+    branch = config.str("branch")
 
     response = http.get(CIRCLECI_PIPELINES_API_URL.format(project_slug), params={
         "circle-token": api_token,
-        "branch": "master" #FIXME get from either config or make another http call to project and get its default_branch
+        "branch": branch
     })
+
+    print("{} ({})".format(project_slug, branch or "all branches"))
 
     if response.status_code != 200:
         return None
 
     pipelines = response.json()
+
+    if len(pipelines.get("items")) == 0:
+        return None
+
     latest_pipeline = pipelines.get("items")[0]
 
     return latest_pipeline
@@ -182,7 +188,7 @@ def get_schema():
                 id = "vcs",
                 name = "VCS",
                 desc = "Version Control System",
-                icon = "codeBranch",
+                icon = "github",
                 default = "gh",
                 options = [
                     schema.Option(
@@ -206,6 +212,12 @@ def get_schema():
                 name = "Repo",
                 desc = "Repository you want to watch",
                 icon = "book"
+            ),
+            schema.Text(
+                id = "branch",
+                name = "Branch",
+                desc = "Filter by branch",
+                icon = "codeBranch",
             )
         ]
     )
