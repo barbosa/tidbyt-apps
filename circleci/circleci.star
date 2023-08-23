@@ -86,8 +86,8 @@ def render_widget(config, latest_pipeline, latest_workflow):
     author = latest_pipeline["trigger"]["actor"]["login"]
     avatar_url = latest_pipeline["trigger"]["actor"]["avatar_url"]
 
-    #FIXME display default avatar if avatar_url is None
-    avatar = http.get(avatar_url).body()
+    if avatar_url != None:
+        avatar = http.get(avatar_url).body()
 
     stopped_at = time.parse_time(latest_workflow["stopped_at"])
     when = humanize.time(stopped_at)
@@ -108,7 +108,7 @@ def render_widget(config, latest_pipeline, latest_workflow):
                     ),
                     render.Row(
                         children = [
-                            render.Image(src=avatar, width=16, height=16),
+                            render.Image(src=avatar, width=16, height=16) if avatar_url else render.Box(width=16, height=16, color="666"),
                             render.Box(width=2, height=16),
                             render.Marquee(
                                 width = 48,
