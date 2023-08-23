@@ -21,15 +21,28 @@ GitHub App and GitLab project support may be added later in the future.
 https://circleci.com/docs/api-developers-guide/#gitlab-saas-support-projects
 """
 def main(config):
+    if config.str("api_token") == "":
+        return render_fail("Please inform API token")
 
-    #TODO 
-    
+    if config.str("vcs") == "":
+        return render_fail("Please inform vcs type")
+
+    if config.str("org") == "":
+        return render_fail("Please inform org name")
+
+    if config.str("repo") == "":
+        return render_fail("Please inform repo name")
+
     latest_pipeline = fetch_latest_pipeline(config)
+    if latest_pipeline == None:
+        return render_fail("Can't fetch pipeline")
 
     #FIXME
     # OK to get latest pipeline but need to get all workflows.
     # alice for examples has 2 workflows: developer-productivity and development
     latest_workflow = fetch_latest_workflow(config, pipeline_id=latest_pipeline.get("id"))
+    if latest_workflow == None:
+        return render_fail("Can't fetch workflow")
 
     return render_widget(config, latest_pipeline, latest_workflow)
 
@@ -44,9 +57,8 @@ def fetch_latest_pipeline(config):
         "branch": "master" #FIXME get from either config or make another http call to project and get its default_branch
     })
 
-    #FIXME render_error
     if response.status_code != 200:
-        fail("Can't fetch pipelines from CircleCI", response.status_code)
+        return None
 
     pipelines = response.json()
     latest_pipeline = pipelines.get("items")[0]
@@ -61,9 +73,8 @@ def fetch_latest_workflow(config, pipeline_id):
         "circle-token": api_token
     })
 
-    #FIXME render_error
     if response.status_code != 200:
-        fail("Can't fetch workflows from CircleCI", response.status_code)
+        return None
 
     workflows = response.json()
     latest_workflow = workflows.get("items")[0]
@@ -125,6 +136,31 @@ def render_widget(config, latest_pipeline, latest_workflow):
                                 )
                             )
                         ]
+                    )
+                ]
+            )
+        )
+    )
+
+
+def render_fail(message):
+    return render.Root(
+        child = render.Padding(
+            pad = 2,
+            child = render.Column(
+                expanded = True,
+                main_align = "space_between",
+                children = [
+                    render.Row(
+                        children = [
+                            render.Image(src=CIRCLECI_LOGO_RED, width=8, height=8),
+                            render.Box(width=2, height=8),
+                            render.Text(content="Error", color="f77")
+                        ]
+                    ),
+                    render.Marquee(
+                        width = 64,
+                        child = render.WrappedText(content=message, width=64, align="left")
                     )
                 ]
             )
